@@ -1,0 +1,28 @@
+name: Auto Commit Every 24 Hours
+
+on:
+  schedule:
+    # Runs every day at midnight UTC (once every 24 hours)
+    - cron: '0 0 * * *'
+
+jobs:
+  auto-commit:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Append timestamp to log.txt
+        run: |
+          echo "Auto-update at $(date -u)" >> log.txt
+
+      - name: Configure Git
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+      - name: Commit and Push changes
+        run: |
+          git add log.txt
+          git diff --cached --quiet || git commit -m "chore: automated daily timestamp update"
+          git push origin main
